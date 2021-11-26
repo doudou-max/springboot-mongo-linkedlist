@@ -34,7 +34,7 @@ public class LinkListController {
      * 两张表 多对一测试
      */
     @GetMapping("moreToOne")
-    public JsonReturn MoreToOne(@RequestParam(required = false) Long studentId,@RequestParam(required = false) Long classId) {
+    public JsonReturn moreToOne(@RequestParam(required = false) Long studentId, @RequestParam(required = false) Long classId) {
         return linkListService.moreToOne(studentId, classId);
     }
 
@@ -51,12 +51,7 @@ public class LinkListController {
      */
     @GetMapping("oneToMany")
     public JsonReturn oneToMany() {
-
         return linkListService.oneToMany();
     }
 
-    @GetMapping("/oneToOne")
-    public Object oneToOne() {
-        return linkListService.oneToOne();
-    }
 }

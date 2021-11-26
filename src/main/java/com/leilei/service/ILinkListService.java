@@ -17,6 +17,4 @@ public interface ILinkListService {
 
     JsonReturn moreTableOneToOne();
 
-    Object oneToOne();
-
 }

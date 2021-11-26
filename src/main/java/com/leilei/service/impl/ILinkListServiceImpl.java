@@ -23,7 +23,9 @@ import java.util.Map;
 /**
  * @author : leilei
  * @date : 11:30 2020/3/15
- * @desc :
+ * 一、多关系解析
+ * 主表 对 从表
+ * 讲述主表对从表的关系
  */
 @Service
 public class ILinkListServiceImpl implements ILinkListService {
@@ -87,31 +89,27 @@ public class ILinkListServiceImpl implements ILinkListService {
         LookupOperation lookup = LookupOperation.newLookup()
                 //关联的从表名字
                 .from("studentClass")
-                //主表中什么字段与从表相关联
+                //主表中什么字段与从表相关联  (主表字段)
                 .localField("classId")
-                //从表中的什么字段与主表相关联
+                //从表中的什么字段与主表相关联 (从表字段)
                 .foreignField("_id")
                 //自定义的从表结果集名  与主表关联的数据归于此结果集下
                 .as("class");
 
-        // (主表字段校验名称不变，从表根据临时表名使用字段)
+        // 主表字段校验名称不变，从表根据临时表名(管道结果)使用字段
         Criteria criteria = new Criteria();
         if (studentId != null) {
-            //主表可能选择的条件
-            criteria.and("_id").is(studentId);
+            criteria.and("_id").is(studentId);  // 主表可能选择的条件，这里没有前缀，当做使用主表字段
         }
         //从表可能选择的条件
         if (classId != null) {
-            //class 为我之前定义的从表结果集名
-            criteria.and("class._id").is(classId);
+            criteria.and("class._id").is(classId);   // class 为我之前定义的从表结果集名，指定前缀，使用指定结果集字段
         }
         //将筛选条件放入管道中
         MatchOperation match = Aggregation.match(criteria);
-        Aggregation agg = Aggregation.newAggregation(lookup, match,Aggregation.unwind("class"));
-//        Aggregation agg = Aggregation.newAggregation(lookup, match);//,Aggregation.unwind("class"));  // Aggregation.unwind("class") 将临时表名变成一个字段给到 student 表字段
+        Aggregation agg = Aggregation.newAggregation(lookup, match, Aggregation.unwind("class"));   // unwind：分解一个文档中的数组字段(例如数组大小为n,为n个文档) (https://blog.csdn.net/qq_35720307/article/details/80939550)
         try {
             AggregationResults<Map> studentAggregation = mongoTemplate.aggregate(agg, "student", Map.class);
-            studentAggregation.getMappedResults().forEach(result -> System.out.println(result.toString()));
             return JsonReturn.buildSuccess(studentAggregation.getMappedResults());
         } catch (Exception e) {
             e.printStackTrace();
@@ -120,7 +118,7 @@ public class ILinkListServiceImpl implements ILinkListService {
     }
 
     /**
-     *一对多
+     * 一对多
      *
      * @return
      */
@@ -152,7 +150,7 @@ public class ILinkListServiceImpl implements ILinkListService {
      */
     @Override
     public JsonReturn moreTableOneToOne() {
-        //学生关联班级
+        // 学生关联班级
         LookupOperation lookupOne = LookupOperation.newLookup()
                 //关联的从表  （班级)
                 .from("studentClass")
@@ -163,7 +161,8 @@ public class ILinkListServiceImpl implements ILinkListService {
                 //从表结果集
                 .as("class");
 
-        //班级关联学校  那么此时 这两者之间 班级又是 学校的主表 班级还是学生的从表
+        // 班级关联学校  那么此时 这两者之间 班级又是 学校的主表 班级还是学生的从表
+        // 到这里管道结果集 class，和 school 关联查询，主表->class 从表->school
         LookupOperation lookupTwo = LookupOperation.newLookup()
                 //班级关联的从表（学校)
                 .from("school")
@@ -180,6 +179,7 @@ public class ILinkListServiceImpl implements ILinkListService {
                 .localField("school.cityId")
                 .foreignField("_id")
                 .as("city");
+
         //将几者关联关系放入管道中 作为条件进行查询
         Aggregation aggregation = Aggregation.newAggregation(lookupOne, lookupTwo, lookupThree);
         try {
@@ -191,17 +191,6 @@ public class ILinkListServiceImpl implements ILinkListService {
             return JsonReturn.buildFailure("error");
         }
 
-    }
-
-    @Override
-    public Object oneToOne() {
-        //学生关联班级
-        LookupOperation lookupOne = LookupOperation.newLookup().from("school").localField("_id").foreignField("cityId").as("result1");
-        Aggregation aggregation = Aggregation.newAggregation(lookupOne);
-        AggregationResults<Map> mapResult = mongoTemplate.aggregate(aggregation, "city", Map.class);
-        System.out.println(mapResult.getMappedResults().size());
-        System.out.println(mapResult.getRawResults().size());
-        return null;
     }
 
 }
