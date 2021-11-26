@@ -17,4 +17,5 @@ public interface ILinkListService {
 
     JsonReturn moreTableOneToOne();
 
+    JsonReturn groupStudent();
 }

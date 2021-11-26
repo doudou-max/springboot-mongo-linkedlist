@@ -54,4 +54,8 @@ public class LinkListController {
         return linkListService.oneToMany();
     }
 
+    @GetMapping("/groupStudent")
+    private JsonReturn groupStudent() {
+        return linkListService.groupStudent();
+    }
 }
