@@ -27,6 +27,7 @@ import java.util.Map;
  */
 @Service
 public class ILinkListServiceImpl implements ILinkListService {
+
     @Autowired
     private MongoTemplate mongoTemplate;
 
@@ -92,6 +93,8 @@ public class ILinkListServiceImpl implements ILinkListService {
                 .foreignField("_id")
                 //自定义的从表结果集名  与主表关联的数据归于此结果集下
                 .as("class");
+
+        // (主表字段校验名称不变，从表根据临时表名使用字段)
         Criteria criteria = new Criteria();
         if (studentId != null) {
             //主表可能选择的条件
@@ -105,8 +108,10 @@ public class ILinkListServiceImpl implements ILinkListService {
         //将筛选条件放入管道中
         MatchOperation match = Aggregation.match(criteria);
         Aggregation agg = Aggregation.newAggregation(lookup, match,Aggregation.unwind("class"));
+//        Aggregation agg = Aggregation.newAggregation(lookup, match);//,Aggregation.unwind("class"));  // Aggregation.unwind("class") 将临时表名变成一个字段给到 student 表字段
         try {
             AggregationResults<Map> studentAggregation = mongoTemplate.aggregate(agg, "student", Map.class);
+            studentAggregation.getMappedResults().forEach(result -> System.out.println(result.toString()));
             return JsonReturn.buildSuccess(studentAggregation.getMappedResults());
         } catch (Exception e) {
             e.printStackTrace();
@@ -187,4 +192,16 @@ public class ILinkListServiceImpl implements ILinkListService {
         }
 
     }
+
+    @Override
+    public Object oneToOne() {
+        //学生关联班级
+        LookupOperation lookupOne = LookupOperation.newLookup().from("school").localField("_id").foreignField("cityId").as("result1");
+        Aggregation aggregation = Aggregation.newAggregation(lookupOne);
+        AggregationResults<Map> mapResult = mongoTemplate.aggregate(aggregation, "city", Map.class);
+        System.out.println(mapResult.getMappedResults().size());
+        System.out.println(mapResult.getRawResults().size());
+        return null;
+    }
+
 }

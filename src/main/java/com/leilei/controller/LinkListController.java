@@ -5,6 +5,7 @@ import com.leilei.util.response.JsonReturn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -32,7 +33,7 @@ public class LinkListController {
      * 两张表 多对一测试
      */
     @GetMapping("moreToOne")
-    public JsonReturn MoreToOne(Long studentId, Long classId) {
+    public JsonReturn MoreToOne(@RequestParam(required = false) Long studentId,@RequestParam(required = false) Long classId) {
         return linkListService.MoreToOne(studentId, classId);
     }
 
@@ -51,5 +52,10 @@ public class LinkListController {
     public JsonReturn oneToMany() {
 
         return linkListService.oneToMany();
+    }
+
+    @GetMapping("/oneToOne")
+    public Object oneToOne() {
+        return linkListService.oneToOne();
     }
 }
