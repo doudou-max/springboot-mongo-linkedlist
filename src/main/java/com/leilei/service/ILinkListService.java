@@ -8,9 +8,10 @@ import com.leilei.util.response.JsonReturn;
  * @desc :
  */
 public interface ILinkListService {
+
     JsonReturn addData();
 
-    JsonReturn MoreToOne(Long studentId, Long classId);
+    JsonReturn moreToOne(Long studentId, Long classId);
 
     JsonReturn oneToMany();
 

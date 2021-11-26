@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("mongo")
 public class LinkListController {
+
     @Autowired
     private ILinkListService linkListService;
 
@@ -34,7 +35,7 @@ public class LinkListController {
      */
     @GetMapping("moreToOne")
     public JsonReturn MoreToOne(@RequestParam(required = false) Long studentId,@RequestParam(required = false) Long classId) {
-        return linkListService.MoreToOne(studentId, classId);
+        return linkListService.moreToOne(studentId, classId);
     }
 
     /**

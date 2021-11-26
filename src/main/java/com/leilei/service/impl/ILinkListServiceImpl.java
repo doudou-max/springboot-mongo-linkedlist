@@ -83,7 +83,7 @@ public class ILinkListServiceImpl implements ILinkListService {
      * @return
      */
     @Override
-    public JsonReturn MoreToOne(Long studentId, Long classId) {
+    public JsonReturn moreToOne(Long studentId, Long classId) {
         LookupOperation lookup = LookupOperation.newLookup()
                 //关联的从表名字
                 .from("studentClass")
